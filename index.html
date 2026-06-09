@@ -15,10 +15,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .nav{background:#fff;border-bottom:0.5px solid #c6c6c8;padding:10px 12px 7px;position:sticky;top:0;z-index:100;}
 .nav-title{font-size:16px;font-weight:600;text-align:center;color:#1c1c1e;}
 .nav-sub{font-size:11px;color:#8e8e93;text-align:center;margin-top:1px;}
+.nav-row{display:flex;align-items:center;justify-content:space-between;}
+.nav-btn{background:none;border:none;color:#004b8d;font-size:14px;font-weight:500;cursor:pointer;padding:0;}
 .tabbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:0.5px solid #c6c6c8;display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0px);}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 5px;gap:2px;cursor:pointer;border:none;background:none;}
-.tab-icon{font-size:19px;line-height:1;}
-.tab-label{font-size:10px;color:#8e8e93;}
+.tab-icon{font-size:18px;line-height:1;}
+.tab-label{font-size:9px;color:#8e8e93;}
 .tab.active .tab-label{color:#004b8d;}
 .content{padding:10px 12px;}
 .card{background:#fff;border-radius:10px;overflow:hidden;margin-bottom:10px;}
@@ -38,16 +40,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .remove-btn{background:none;border:none;font-size:22px;color:#c7c7cc;padding:0 0 0 8px;cursor:pointer;line-height:1;}
 .photo-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 14px;}
 .photo-box{border:1.5px dashed #c6c6c8;border-radius:8px;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;position:relative;overflow:hidden;background:#fafafa;}
-.photo-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.photo-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;cursor:zoom-in;}
 .photo-box input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;}
 .photo-box-lbl{font-size:11px;color:#8e8e93;text-align:center;padding:0 4px;z-index:1;}
 .photo-box-ico{font-size:22px;z-index:1;}
 .photo-box.loaded .photo-box-lbl,.photo-box.loaded .photo-box-ico{display:none;}
 .photo-clear{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);z-index:2;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:20px;font-size:11px;padding:4px 10px;cursor:pointer;white-space:nowrap;}
-.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:999;align-items:center;justify-content:center;}
-.lightbox.open{display:flex;}
-.lightbox img{max-width:95vw;max-height:90vh;object-fit:contain;border-radius:6px;}
-.lightbox-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:26px;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
 .check-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:0.5px solid #f2f2f7;cursor:pointer;}
 .check-row:last-child{border-bottom:none;}
 .check-circle{width:24px;height:24px;border-radius:50%;border:2px solid #c6c6c8;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
@@ -69,31 +67,60 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .notes-box{background:#fff;border-radius:10px;overflow:hidden;margin-bottom:10px;}
 .notes-box textarea{width:100%;border:none;outline:none;font-size:14px;color:#1c1c1e;padding:12px 14px;font-family:inherit;min-height:96px;resize:none;display:block;}
 .finding-notes{width:100%;border:1px solid #e5e5ea;border-radius:8px;padding:9px 11px;font-size:14px;font-family:-apple-system,sans-serif;color:#1c1c1e;outline:none;resize:none;min-height:66px;}
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:999;align-items:center;justify-content:center;}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:95vw;max-height:90vh;object-fit:contain;border-radius:6px;}
+.lightbox-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:26px;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.hist-item{background:#fff;border-radius:10px;margin-bottom:10px;overflow:hidden;cursor:pointer;}
+.hist-head{padding:12px 14px;display:flex;justify-content:space-between;align-items:flex-start;}
+.hist-name{font-size:15px;font-weight:600;color:#1c1c1e;}
+.hist-date{font-size:12px;color:#8e8e93;margin-top:2px;}
+.hist-badges{display:flex;gap:6px;align-items:center;flex-shrink:0;margin-left:8px;}
+.hist-badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;}
+.hb-ok{background:#d1fae5;color:#065f46;}
+.hb-mon{background:#fef3c7;color:#92400e;}
+.hb-act{background:#fee2e2;color:#991b1b;}
+.hist-actions{display:flex;border-top:0.5px solid #f2f2f7;}
+.hist-btn{flex:1;padding:11px;background:none;border:none;font-size:13px;font-weight:500;cursor:pointer;color:#004b8d;}
+.hist-btn.danger{color:#d93025;}
+.hist-btn+.hist-btn{border-left:0.5px solid #f2f2f7;}
+.empty-state{text-align:center;padding:48px 24px;color:#8e8e93;}
+.empty-icon{font-size:40px;margin-bottom:12px;}
+.empty-title{font-size:16px;font-weight:500;color:#3a3a3c;margin-bottom:6px;}
+.empty-sub{font-size:13px;line-height:1.5;}
+.autosave-dot{width:7px;height:7px;border-radius:50%;background:#34c759;display:inline-block;margin-right:4px;}
 </style>
 </head>
 <body>
 
 <div class="screen active" id="screen-customer">
-  <div class="nav"><div class="nav-title">Elite Inspection</div><div class="nav-sub">Customer info</div></div>
+  <div class="nav">
+    <div class="nav-row">
+      <span class="autosave-dot" id="save-dot" style="opacity:0;"></span>
+      <div class="nav-title" style="flex:1;text-align:center;">Elite Inspection</div>
+      <button class="nav-btn" onclick="newInspection()">New</button>
+    </div>
+    <div class="nav-sub" id="current-label">Customer info</div>
+  </div>
   <div class="content">
     <div class="card">
       <div class="card-header">Customer</div>
-      <div class="row"><label>Name</label><input type="text" id="cust-name" placeholder="Jane Smith" autocomplete="name"></div>
-      <div class="row"><label>Address</label><input type="text" id="cust-addr" placeholder="123 Main St, Minneapolis MN"></div>
+      <div class="row"><label>Name</label><input type="text" id="cust-name" placeholder="Jane Smith" oninput="autoSave()"></div>
+      <div class="row"><label>Address</label><input type="text" id="cust-addr" placeholder="123 Main St, Minneapolis MN" oninput="autoSave()"></div>
     </div>
     <div class="card">
       <div class="card-header">Inspection</div>
-      <div class="row"><label>Date</label><input type="date" id="insp-date"></div>
-      <div class="row"><label>Tech</label><input type="text" id="tech-name" placeholder="Nils"></div>
+      <div class="row"><label>Date</label><input type="date" id="insp-date" onchange="autoSave()"></div>
+      <div class="row"><label>Tech</label><input type="text" id="tech-name" placeholder="Nils" oninput="autoSave()"></div>
       <div class="row"><label>Year</label>
-        <select id="mem-year"><option>Year 1</option><option>Year 2</option><option>Year 3</option><option>Year 4</option><option>Year 5+</option></select>
+        <select id="mem-year" onchange="autoSave()"><option>Year 1</option><option>Year 2</option><option>Year 3</option><option>Year 4</option><option>Year 5+</option></select>
       </div>
     </div>
   </div>
 </div>
 
 <div class="screen" id="screen-findings">
-  <div class="nav"><div class="nav-title">Thermal Findings</div><div class="nav-sub">Tap status badge to cycle severity</div></div>
+  <div class="nav"><div class="nav-title">Thermal Findings</div><div class="nav-sub">Tap status to cycle severity</div></div>
   <div class="content">
     <div class="sum-row">
       <div class="sum-card c-ok"><div class="sum-n" id="sum-ok">0</div><div class="sum-l">Normal</div></div>
@@ -113,12 +140,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <div class="screen" id="screen-summary">
-  <div class="nav"><div class="nav-title">Summary & Report</div><div class="nav-sub">Review before generating</div></div>
+  <div class="nav"><div class="nav-title">Summary & Report</div><div class="nav-sub">Final notes before generating</div></div>
   <div class="content">
     <div class="card">
       <div class="card-header">Next visit</div>
       <div class="row">
-        <select id="next-visit" style="width:100%;padding:14px 0;">
+        <select id="next-visit" style="width:100%;padding:14px 0;" onchange="autoSave()">
           <option>12 months (standard)</option>
           <option>6 months (monitor required)</option>
           <option>3 months (action required)</option>
@@ -126,10 +153,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </select>
       </div>
     </div>
-    <div class="notes-box"><textarea id="overall-notes" placeholder="Overall notes and recommendations..."></textarea></div>
-    <button class="btn-primary" onclick="generateReport()">Generate & Save Report</button>
-    <button class="btn-secondary" onclick="resetAll()">Start new inspection</button>
+    <div class="notes-box"><textarea id="overall-notes" placeholder="Overall notes and recommendations..." oninput="autoSave()"></textarea></div>
+    <button class="btn-primary" onclick="generateReport()">Generate &amp; Print Report</button>
+    <button class="btn-secondary" onclick="newInspection()">Start new inspection</button>
   </div>
+</div>
+
+<div class="screen" id="screen-history">
+  <div class="nav"><div class="nav-title">Inspection History</div><div class="nav-sub" id="hist-count">0 inspections saved</div></div>
+  <div class="content" id="hist-list"></div>
 </div>
 
 <div class="tabbar">
@@ -145,6 +177,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <button class="tab" onclick="showScreen('summary',this)">
     <span class="tab-icon">&#128196;</span><span class="tab-label">Report</span>
   </button>
+  <button class="tab" onclick="showScreen('history',this);renderHistory();">
+    <span class="tab-icon">&#128197;</span><span class="tab-label">History</span>
+  </button>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">&times;</button>
+  <img id="lightbox-img" src="" alt="Zoomed photo">
 </div>
 
 <script>
@@ -162,8 +202,14 @@ var CHECKS=[
   {id:"c10",label:"EV charger mounting and enclosure checked",cat:"EV charger"},
   {id:"c11",label:"Written findings reviewed with customer",cat:"Wrap-up"}
 ];
-var checked={};var findings=[];var fc=0;
 
+var checked={};
+var findings=[];
+var fc=0;
+var currentId=null;
+var saveTimer=null;
+
+// ---------- SCREEN NAV ----------
 function showScreen(name,btn){
   document.querySelectorAll(".screen").forEach(function(s){s.classList.remove("active");});
   document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active");});
@@ -172,6 +218,7 @@ function showScreen(name,btn){
   if(name==="findings")updateBar();
 }
 
+// ---------- CHECKLIST ----------
 function buildCL(){
   var el=document.getElementById("ck-list");
   var lastCat="";
@@ -194,33 +241,75 @@ function toggleCk(id){
   if(checked[id])b.classList.add("on");else b.classList.remove("on");
   var done=Object.values(checked).filter(Boolean).length;
   document.getElementById("ck-prog").textContent=done+" of "+CHECKS.length+" complete";
+  autoSave();
 }
 
+// ---------- FINDINGS ----------
 var STATUS_CYCLE=["ok","monitor","action"];
 var STATUS_LBL={ok:"Normal",monitor:"Monitor",action:"Action required"};
 var STATUS_CLS={ok:"pill-ok",monitor:"pill-monitor",action:"pill-action"};
 
-function addFinding(){
+function addFinding(obj){
   fc++;var id=fc;
-  findings.push({id:id,status:"ok",location:"",temp:"",notes:"",thermalSrc:null,visibleSrc:null});
+  var f=obj||{id:id,status:"ok",location:"",temp:"",notes:"",thermalSrc:null,visibleSrc:null};
+  f.id=id;
+  findings.push(f);
   var d=document.createElement("div");
   d.className="finding";d.id="finding-"+id;
-  d.innerHTML='<div class="finding-head"><span class="finding-num"></span><div style="display:flex;align-items:center;gap:6px;"><button class="status-pill pill-ok" id="pill-'+id+'" onclick="cycleStatus('+id+')">Normal</button><button class="remove-btn" onclick="removeFinding('+id+')" aria-label="Remove">&times;</button></div></div>'+
-  '<div class="row"><label>Location</label><input type="text" placeholder="e.g. Breaker #14" oninput="setF('+id+',\'location\',this.value)"></div>'+
-  '<div class="row"><label>Max temp</label><input type="text" placeholder="e.g. 118\u00b0F" oninput="setF('+id+',\'temp\',this.value)"></div>'+
-  '<div class="photo-pair">'+
-  '<div class="photo-box" id="tb-'+id+'"><input type="file" accept="image/*" onchange="doPhoto('+id+',\'thermal\',this)"><div class="photo-box-ico">&#128293;</div><div class="photo-box-lbl">Thermal photo</div><button class="photo-clear" id="tc-'+id+'" onclick="clearPhoto('+id+',\'thermal\')" style="display:none;">&#10005; Remove</button></div>'+
-  '<div class="photo-box" id="vb-'+id+'"><input type="file" accept="image/*" onchange="doPhoto('+id+',\'visible\',this)"><div class="photo-box-ico">&#128247;</div><div class="photo-box-lbl">Visible photo</div><button class="photo-clear" id="vc-'+id+'" onclick="clearPhoto('+id+',\'visible\')" style="display:none;">&#10005; Remove</button></div>'+
-  '</div>'+
-  '<div style="padding:0 14px 12px;"><textarea class="finding-notes" placeholder="Notes on this finding..." oninput="setF('+id+',\'notes\',this.value)"></textarea></div>';
+  var h="";
+  h+='<div class="finding-head">';
+  h+='<span class="finding-num"></span>';
+  h+='<div style="display:flex;align-items:center;gap:6px;">';
+  h+='<button class="status-pill '+STATUS_CLS[f.status]+'" id="pill-'+id+'" onclick="cycleStatus('+id+')">'+STATUS_LBL[f.status]+'</button>';
+  h+='<button class="remove-btn" onclick="removeFinding('+id+')" aria-label="Remove">&times;</button>';
+  h+='</div></div>';
+  h+='<div class="row"><label>Location</label>';
+  h+='<input type="text" placeholder="e.g. Breaker #14" value="'+esc(f.location)+'" oninput="setF('+id+',&quot;location&quot;,this.value)"></div>';
+  h+='<div class="row"><label>Max temp</label>';
+  h+='<input type="text" placeholder="e.g. 118°F" value="'+esc(f.temp)+'" oninput="setF('+id+',&quot;temp&quot;,this.value)"></div>';
+  h+='<div class="photo-pair">';
+  h+='<div class="photo-box" id="tb-'+id+'">';
+  h+='<input type="file" accept="image/*" onchange="doPhoto('+id+',&quot;thermal&quot;,this)">';
+  h+='<div class="photo-box-ico">&#128293;</div>';
+  h+='<div class="photo-box-lbl">Thermal photo</div>';
+  h+='<button class="photo-clear" id="tc-'+id+'" onclick="clearPhoto('+id+',&quot;thermal&quot;)" style="display:none;">&#10005; Remove</button>';
+  h+='</div>';
+  h+='<div class="photo-box" id="vb-'+id+'">';
+  h+='<input type="file" accept="image/*" onchange="doPhoto('+id+',&quot;visible&quot;,this)">';
+  h+='<div class="photo-box-ico">&#128247;</div>';
+  h+='<div class="photo-box-lbl">Visible photo</div>';
+  h+='<button class="photo-clear" id="vc-'+id+'" onclick="clearPhoto('+id+',&quot;visible&quot;)" style="display:none;">&#10005; Remove</button>';
+  h+='</div></div>';
+  h+='<div style="padding:0 14px 12px;">';
+  h+='<textarea class="finding-notes" placeholder="Notes on this finding..." oninput="setF('+id+',&quot;notes&quot;,this.value)">'+esc(f.notes)+'</textarea>';
+  h+='</div>';
+  d.innerHTML=h;
   document.getElementById("findings-list").appendChild(d);
+  if(f.thermalSrc)restorePhoto(id,"thermal",f.thermalSrc);
+  if(f.visibleSrc)restorePhoto(id,"visible",f.visibleSrc);
   renumberFindings();
   updateBar();
 }
 
+function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");}
+
+function restorePhoto(id,type,src){
+  var prefix=type==="thermal"?"tb":"vb";
+  var clearId=type==="thermal"?"tc":"vc";
+  var box=document.getElementById(prefix+"-"+id);
+  if(!box)return;
+  var img=document.createElement("img");
+  img.src=src;
+  img.style.cursor="zoom-in";
+  img.onclick=function(ev){ev.stopPropagation();openLightbox(src);};
+  box.insertBefore(img,box.firstChild);
+  box.classList.add("loaded");
+  var clrBtn=document.getElementById(clearId+"-"+id);
+  if(clrBtn)clrBtn.style.display="block";
+}
+
 function renumberFindings(){
-  var cards=document.querySelectorAll(".finding");
-  cards.forEach(function(card,i){
+  document.querySelectorAll(".finding").forEach(function(card,i){
     var span=card.querySelector(".finding-num");
     if(span)span.textContent="Finding #"+(i+1);
   });
@@ -232,9 +321,14 @@ function cycleStatus(id){
   obj.status=STATUS_CYCLE[(i+1)%3];
   var p=document.getElementById("pill-"+id);
   p.textContent=STATUS_LBL[obj.status];p.className="status-pill "+STATUS_CLS[obj.status];
-  updateBar();
+  updateBar();autoSave();
 }
-function setF(id,field,val){var o=findings.find(function(f){return f.id===id;});if(o)o[field]=val;}
+
+function setF(id,field,val){
+  var o=findings.find(function(f){return f.id===id;});
+  if(o){o[field]=val;autoSave();}
+}
+
 function doPhoto(id,type,input){
   if(!input.files[0])return;
   var r=new FileReader();
@@ -245,16 +339,19 @@ function doPhoto(id,type,input){
     var clearId=type==="thermal"?"tc":"vc";
     var box=document.getElementById(prefix+"-"+id);
     var old=box.querySelector("img");if(old)old.remove();
-    var img=document.createElement("img");img.src=e.target.result;
+    var img=document.createElement("img");
+    img.src=e.target.result;
     img.style.cursor="zoom-in";
     img.onclick=function(ev){ev.stopPropagation();openLightbox(e.target.result);};
     box.insertBefore(img,box.firstChild);
     box.classList.add("loaded");
     var clrBtn=document.getElementById(clearId+"-"+id);
     if(clrBtn)clrBtn.style.display="block";
+    autoSave();
   };
   r.readAsDataURL(input.files[0]);
 }
+
 function clearPhoto(id,type){
   var o=findings.find(function(f){return f.id===id;});
   if(o)o[type+"Src"]=null;
@@ -265,58 +362,217 @@ function clearPhoto(id,type){
   box.classList.remove("loaded");
   var clrBtn=document.getElementById(clearId+"-"+id);
   if(clrBtn)clrBtn.style.display="none";
-  var fileInput=box.querySelector('input[type=file]');
-  if(fileInput)fileInput.value="";
+  var fi=box.querySelector("input[type=file]");if(fi)fi.value="";
+  autoSave();
 }
+
 function removeFinding(id){
   var i=findings.findIndex(function(f){return f.id===id;});
   if(i>-1)findings.splice(i,1);
   var el=document.getElementById("finding-"+id);if(el)el.remove();
-  renumberFindings();
-  updateBar();
+  renumberFindings();updateBar();autoSave();
 }
+
 function updateBar(){
   document.getElementById("sum-ok").textContent=findings.filter(function(f){return f.status==="ok";}).length;
   document.getElementById("sum-mon").textContent=findings.filter(function(f){return f.status==="monitor";}).length;
   document.getElementById("sum-act").textContent=findings.filter(function(f){return f.status==="action";}).length;
 }
+
+// ---------- LIGHTBOX ----------
+function openLightbox(src){
+  document.getElementById("lightbox-img").src=src;
+  document.getElementById("lightbox").classList.add("open");
+  document.body.style.overflow="hidden";
+}
+function closeLightbox(){
+  document.getElementById("lightbox").classList.remove("open");
+  document.body.style.overflow="";
+}
+
+// ---------- AUTO SAVE ----------
+function autoSave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(function(){commitSave();},800);
+  var dot=document.getElementById("save-dot");
+  if(dot){dot.style.opacity="1";dot.style.background="#ff9500";}
+}
+
+function commitSave(){
+  var snap=getSnapshot();
+  if(!snap.custName&&findings.length===0)return;
+  if(!currentId)currentId="insp-"+Date.now();
+  snap.id=currentId;
+  snap.savedAt=new Date().toISOString();
+  var records=loadRecords();
+  var idx=records.findIndex(function(r){return r.id===currentId;});
+  if(idx>-1)records[idx]=snap;else records.unshift(snap);
+  try{localStorage.setItem("bakken_inspections",JSON.stringify(records));}catch(e){}
+  var dot=document.getElementById("save-dot");
+  if(dot){dot.style.background="#34c759";}
+  var lbl=document.getElementById("current-label");
+  if(lbl)lbl.textContent=snap.custName?(snap.custName+" — auto saved"):"Auto saved";
+}
+
+function getSnapshot(){
+  return {
+    id:currentId,
+    custName:document.getElementById("cust-name").value||"",
+    custAddr:document.getElementById("cust-addr").value||"",
+    inspDate:document.getElementById("insp-date").value||"",
+    techName:document.getElementById("tech-name").value||"",
+    memYear:document.getElementById("mem-year").value||"Year 1",
+    nextVisit:document.getElementById("next-visit").value||"",
+    overallNotes:document.getElementById("overall-notes").value||"",
+    checked:Object.assign({},checked),
+    findings:findings.map(function(f){return Object.assign({},f);}),
+    savedAt:""
+  };
+}
+
+function loadRecords(){
+  try{var d=localStorage.getItem("bakken_inspections");return d?JSON.parse(d):[];}catch(e){return [];}
+}
+
+// ---------- HISTORY ----------
+function renderHistory(){
+  var records=loadRecords();
+  var el=document.getElementById("hist-list");
+  el.innerHTML="";
+  document.getElementById("hist-count").textContent=records.length+" inspection"+(records.length!==1?"s":"")+" saved";
+  if(records.length===0){
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">&#128203;</div><div class="empty-title">No inspections yet</div><div class="empty-sub">Complete your first inspection and it will appear here automatically.</div></div>';
+    return;
+  }
+  records.forEach(function(r){
+    var nOk=(r.findings||[]).filter(function(f){return f.status==="ok";}).length;
+    var nMon=(r.findings||[]).filter(function(f){return f.status==="monitor";}).length;
+    var nAct=(r.findings||[]).filter(function(f){return f.status==="action";}).length;
+    var dateStr=r.inspDate?formatDate(r.inspDate):(r.savedAt?formatDate(r.savedAt.split("T")[0]):"Unknown date");
+    var div=document.createElement("div");
+    div.className="hist-item";
+    var badges="";
+    if(nOk)badges+='<span class="hist-badge hb-ok">'+nOk+' OK</span>';
+    if(nMon)badges+='<span class="hist-badge hb-mon">'+nMon+' Monitor</span>';
+    if(nAct)badges+='<span class="hist-badge hb-act">'+nAct+' Action</span>';
+    div.innerHTML='<div class="hist-head"><div><div class="hist-name">'+(r.custName||"Unnamed customer")+'</div><div class="hist-date">'+dateStr+(r.techName?" &middot; "+r.techName:"")+'</div></div><div class="hist-badges">'+badges+'</div></div>'+
+    '<div class="hist-actions">'+
+    '<button class="hist-btn" onclick="resumeInspection(''+r.id+'')">&#9998; Edit</button>'+
+    '<button class="hist-btn" onclick="regenReport(''+r.id+'')">&#128196; Report</button>'+
+    '<button class="hist-btn danger" onclick="deleteInspection(''+r.id+'')">&#128465; Delete</button>'+
+    '</div>';
+    el.appendChild(div);
+  });
+}
+
+function formatDate(s){
+  if(!s)return "";
+  var parts=s.split("-");
+  if(parts.length<3)return s;
+  var months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return months[parseInt(parts[1])-1]+" "+parseInt(parts[2])+", "+parts[0];
+}
+
+function resumeInspection(id){
+  var records=loadRecords();
+  var r=records.find(function(rec){return rec.id===id;});
+  if(!r)return;
+  loadSnapshot(r);
+  showScreen("customer",document.querySelector(".tab"));
+  document.querySelectorAll(".tab")[0].classList.add("active");
+}
+
+function loadSnapshot(r){
+  currentId=r.id;
+  document.getElementById("cust-name").value=r.custName||"";
+  document.getElementById("cust-addr").value=r.custAddr||"";
+  document.getElementById("insp-date").value=r.inspDate||"";
+  document.getElementById("tech-name").value=r.techName||"";
+  document.getElementById("mem-year").value=r.memYear||"Year 1";
+  document.getElementById("next-visit").value=r.nextVisit||"12 months (standard)";
+  document.getElementById("overall-notes").value=r.overallNotes||"";
+  // Checklist
+  Object.assign(checked,r.checked||{});
+  CHECKS.forEach(function(c){
+    var b=document.getElementById("box-"+c.id);
+    if(b){if(checked[c.id])b.classList.add("on");else b.classList.remove("on");}
+  });
+  var done=Object.values(checked).filter(Boolean).length;
+  document.getElementById("ck-prog").textContent=done+" of "+CHECKS.length+" complete";
+  // Findings
+  findings.length=0;fc=0;
+  document.getElementById("findings-list").innerHTML="";
+  (r.findings||[]).forEach(function(f){addFinding(Object.assign({},f));});
+  updateBar();
+  var lbl=document.getElementById("current-label");
+  if(lbl)lbl.textContent=(r.custName||"")+" — loaded";
+}
+
+function deleteInspection(id){
+  if(!confirm("Delete this inspection? This cannot be undone."))return;
+  var records=loadRecords().filter(function(r){return r.id!==id;});
+  try{localStorage.setItem("bakken_inspections",JSON.stringify(records));}catch(e){}
+  if(currentId===id){currentId=null;}
+  renderHistory();
+}
+
+function newInspection(){
+  if(!confirm("Start a new inspection? Current data is already saved."))return;
+  currentId=null;fc=0;findings.length=0;
+  Object.keys(checked).forEach(function(k){checked[k]=false;});
+  document.getElementById("findings-list").innerHTML="";
+  ["cust-name","cust-addr","tech-name","overall-notes"].forEach(function(id){document.getElementById(id).value="";});
+  document.getElementById("insp-date").value=new Date().toISOString().split("T")[0];
+  document.getElementById("mem-year").value="Year 1";
+  document.getElementById("next-visit").value="12 months (standard)";
+  CHECKS.forEach(function(c){var b=document.getElementById("box-"+c.id);if(b)b.classList.remove("on");});
+  document.getElementById("ck-prog").textContent="0 of "+CHECKS.length+" complete";
+  document.getElementById("current-label").textContent="Customer info";
+  updateBar();addFinding();
+  showScreen("customer",document.querySelectorAll(".tab")[0]);
+}
+
+// ---------- REPORT ----------
 function badge(s){
   if(s==="monitor")return '<span style="background:#fef3c7;color:#92400e;font-size:12px;padding:3px 10px;border-radius:20px;font-weight:600;">Monitor</span>';
   if(s==="action")return '<span style="background:#fee2e2;color:#991b1b;font-size:12px;padding:3px 10px;border-radius:20px;font-weight:600;">Action required</span>';
   return '<span style="background:#d1fae5;color:#065f46;font-size:12px;padding:3px 10px;border-radius:20px;font-weight:600;">Normal</span>';
 }
-function generateReport(){
-  var name=document.getElementById("cust-name").value||"Customer";
-  var addr=document.getElementById("cust-addr").value||"";
-  var date=document.getElementById("insp-date").value||new Date().toISOString().split("T")[0];
-  var tech=document.getElementById("tech-name").value||"";
-  var yr=document.getElementById("mem-year").value;
-  var notes=document.getElementById("overall-notes").value||"";
-  var nxt=document.getElementById("next-visit").value;
-  var nOk=findings.filter(function(f){return f.status==="ok";}).length;
-  var nMon=findings.filter(function(f){return f.status==="monitor";}).length;
-  var nAct=findings.filter(function(f){return f.status==="action";}).length;
-  var fHtml=findings.length===0?'<p style="color:#6b7280;font-size:14px;font-style:italic;padding:1rem 0;">No findings recorded.</p>':
-    findings.map(function(f,i){
+
+function buildReportHtml(snap){
+  var name=snap.custName||"Customer";
+  var addr=snap.custAddr||"";
+  var date=snap.inspDate||"";
+  var tech=snap.techName||"";
+  var yr=snap.memYear||"";
+  var notes=snap.overallNotes||"";
+  var nxt=snap.nextVisit||"12 months (standard)";
+  var fList=snap.findings||[];
+  var ckState=snap.checked||{};
+  var nOk=fList.filter(function(f){return f.status==="ok";}).length;
+  var nMon=fList.filter(function(f){return f.status==="monitor";}).length;
+  var nAct=fList.filter(function(f){return f.status==="action";}).length;
+  var fHtml=fList.length===0?'<p style="color:#6b7280;font-size:14px;font-style:italic;padding:1rem 0;">No findings recorded.</p>':
+    fList.map(function(f,i){
       return '<div style="border:1px solid #e5e7eb;border-radius:10px;padding:1rem;margin-bottom:1rem;page-break-inside:avoid;">'+
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'+
         '<span style="font-weight:600;font-size:15px;">Finding #'+(i+1)+(f.location?" — "+f.location:"")+'</span>'+badge(f.status)+'</div>'+
         ((f.thermalSrc||f.visibleSrc)?'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">'+
           (f.thermalSrc?'<div><p style="font-size:11px;color:#6b7280;margin-bottom:4px;">Thermal</p><img src="'+f.thermalSrc+'" style="width:100%;border-radius:6px;max-height:180px;object-fit:cover;"></div>':"<div></div>")+
           (f.visibleSrc?'<div><p style="font-size:11px;color:#6b7280;margin-bottom:4px;">Visible light</p><img src="'+f.visibleSrc+'" style="width:100%;border-radius:6px;max-height:180px;object-fit:cover;"></div>':"<div></div>")+
-        '</div>':"")+(f.temp?'<p style="font-size:13px;color:#374151;margin-bottom:6px;"><strong>Max temp:</strong> '+f.temp+'</p>':"")+(f.notes?'<p style="font-size:14px;color:#374151;line-height:1.6;">'+f.notes+'</p>':"")+'</div>';
+        '</div>':"")+(f.temp?'<p style="font-size:13px;color:#374151;margin-bottom:6px;"><strong>Max temp:</strong> '+f.temp+'</p>':"")+(f.notes?'<p style="font-size:14px;color:#374151;line-height:1.6;">'+f.notes+'</p>':"")+"</div>";
     }).join("");
   var cats=[...new Set(CHECKS.map(function(c){return c.cat;}))];
   var clHtml="";
   cats.forEach(function(cat){
     clHtml+='<div style="margin-bottom:12px;"><p style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px;">'+cat+'</p>';
     CHECKS.filter(function(c){return c.cat===cat;}).forEach(function(c){
-      var done=!!checked[c.id];
-      clHtml+='<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:13px;color:'+(done?"#111827":"#9ca3af")+';"><span style="color:'+(done?"#059669":"#d1d5db")+';font-size:15px;">'+(done?"✓":"○")+"</span>"+c.label+"</div>";
+      var done=!!ckState[c.id];
+      clHtml+='<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:13px;color:'+(done?"#111827":"#9ca3af")+';"><span style="color:'+(done?"#059669":"#d1d5db")+';font-size:15px;">'+(done?"&#10003;":"&#9675;")+'</span>'+c.label+"</div>";
     });
     clHtml+="</div>";
   });
-  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bakken Inspection '+name+'</title><style>body{font-family:Arial,sans-serif;color:#111827;margin:0;padding:0;}@media print{@page{margin:1.5cm;}}</style></head><body><div style="max-width:680px;margin:0 auto;padding:2rem;">'+
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bakken Inspection '+name+'</title><style>body{font-family:Arial,sans-serif;color:#111827;margin:0;padding:0;}@media print{@page{margin:1.5cm;}}</style></head><body><div style="max-width:680px;margin:0 auto;padding:2rem;">'+
   '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #111827;padding-bottom:1rem;margin-bottom:1.5rem;">'+
   '<img src="data:image/jpeg;base64,'+LOGO+'" style="height:48px;width:auto;" alt="Bakken Electric">'+
   '<div style="text-align:right;"><p style="font-size:15px;font-weight:700;margin-bottom:2px;">Elite Protection Plan</p><p style="font-size:12px;color:#6b7280;">Annual electrical inspection report</p><p style="font-size:12px;color:#6b7280;margin-top:2px;">'+date+(tech?" &middot; Tech: "+tech:"")+' &middot; '+yr+'</p></div></div>'+
@@ -328,7 +584,7 @@ function generateReport(){
   '<h2 style="font-size:15px;font-weight:700;margin-bottom:1rem;border-bottom:1px solid #e5e7eb;padding-bottom:6px;">Thermal findings</h2>'+fHtml+
   '<h2 style="font-size:15px;font-weight:700;margin:1.5rem 0 1rem;border-bottom:1px solid #e5e7eb;padding-bottom:6px;">Inspection checklist</h2>'+
   '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 2rem;">'+clHtml+'</div>'+
-  (notes?'<h2 style="font-size:15px;font-weight:700;margin:1.5rem 0 1rem;border-bottom:1px solid #e5e7eb;padding-bottom:6px;">Technician summary</h2><p style="font-size:14px;line-height:1.7;">'+notes+'</p>':"")+
+  (notes?'<h2 style="font-size:15px;font-weight:700;margin:1.5rem 0 1rem;border-bottom:1px solid #e5e7eb;padding-bottom:6px;">Technician summary</h2><p style="font-size:14px;line-height:1.7;">'+notes+'</p>':"")+ 
   '<div style="background:#f9fafb;border-radius:8px;padding:1rem;margin-top:1.5rem;"><p style="font-size:13px;"><strong>Next recommended visit:</strong> '+nxt+'</p></div>'+
   '<div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid #e5e7eb;">'+
   '<div><p style="font-size:12px;color:#6b7280;margin-bottom:4px;">Customer signature</p><div style="border-bottom:1.5px solid #374151;height:40px;"></div><p style="font-size:11px;color:#9ca3af;margin-top:4px;">I have reviewed the findings above</p></div>'+
@@ -337,36 +593,31 @@ function generateReport(){
   '<img src="data:image/jpeg;base64,'+LOGO+'" style="height:28px;width:auto;opacity:0.5;" alt="Bakken Electric">'+
   '<p style="font-size:11px;color:#9ca3af;">bakkenelectric.com &middot; For property owner records.</p></div></div>'+
   '<script>window.onload=function(){window.print();}<\/script></body></html>';
+}
+
+function generateReport(){
+  commitSave();
+  var snap=getSnapshot();
+  var html=buildReportHtml(snap);
   var blob=new Blob([html],{type:"text/html"});
   var url=URL.createObjectURL(blob);
   window.open(url,"_blank");
 }
-function resetAll(){
-  if(!confirm("Clear all data and start a new inspection?"))return;
-  ["cust-name","cust-addr","tech-name","overall-notes"].forEach(function(id){document.getElementById(id).value="";});
-  document.getElementById("insp-date").value=new Date().toISOString().split("T")[0];
-  findings.length=0;fc=0;
-  document.getElementById("findings-list").innerHTML="";
-  CHECKS.forEach(function(c){checked[c.id]=false;var b=document.getElementById("box-"+c.id);if(b)b.classList.remove("on");});
-  document.getElementById("ck-prog").textContent="0 of "+CHECKS.length+" complete";
-  updateBar();addFinding();
+
+function regenReport(id){
+  var records=loadRecords();
+  var r=records.find(function(rec){return rec.id===id;});
+  if(!r)return;
+  var html=buildReportHtml(r);
+  var blob=new Blob([html],{type:"text/html"});
+  var url=URL.createObjectURL(blob);
+  window.open(url,"_blank");
 }
-function openLightbox(src){
-  document.getElementById("lightbox-img").src=src;
-  document.getElementById("lightbox").classList.add("open");
-  document.body.style.overflow="hidden";
-}
-function closeLightbox(){
-  document.getElementById("lightbox").classList.remove("open");
-  document.body.style.overflow="";
-}
+
+// ---------- INIT ----------
 buildCL();
 document.getElementById("insp-date").value=new Date().toISOString().split("T")[0];
 addFinding();
 </script>
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-  <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">&times;</button>
-  <img id="lightbox-img" src="" alt="Zoomed photo">
-</div>
 </body>
 </html>
