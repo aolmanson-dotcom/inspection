@@ -684,66 +684,98 @@ function buildReportHtml(snap){
   var nMon=fList.filter(function(f){return f.status==='monitor';}).length;
   var nAct=fList.filter(function(f){return f.status==='action';}).length;
 
-  var fHtml=fList.length===0?'<p style="color:#6b7280;font-size:14px;font-style:italic;padding:1rem 0;">No findings recorded.</p>':
+  var statusColor={ok:'#065f46',monitor:'#92400e',action:'#991b1b'};
+  var statusBg={ok:'#d1fae5',monitor:'#fef3c7',action:'#fee2e2'};
+  var statusLbl={ok:'Normal',monitor:'Monitor',action:'Action required'};
+
+  var fHtml=fList.length===0?'<p style="color:#6b7280;font-size:11px;font-style:italic;">No findings recorded.</p>':
     fList.map(function(f,i){
+      var metaRow='';
+      if(f.temp) metaRow+='<span style="font-size:11px;color:#374151;margin-right:12px;"><strong>Max temp:</strong> '+f.temp+'</span>';
+      if(f.notes) metaRow+='<p style="font-size:11px;color:#374151;line-height:1.5;margin:4px 0 0;">'+f.notes+'</p>';
       var photos='';
-      if(f.thermalSrc||f.visibleSrc){
-        photos='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">';
-        photos+=f.thermalSrc?'<div><p style="font-size:11px;color:#6b7280;margin-bottom:4px;">Thermal</p><img src="'+f.thermalSrc+'" style="width:100%;border-radius:6px;max-height:180px;object-fit:cover;"></div>':'<div></div>';
-        photos+=f.visibleSrc?'<div><p style="font-size:11px;color:#6b7280;margin-bottom:4px;">Visible light</p><img src="'+f.visibleSrc+'" style="width:100%;border-radius:6px;max-height:180px;object-fit:cover;"></div>':'<div></div>';
+      if(f.thermalSrc&&f.visibleSrc){
+        photos='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;">';
+        photos+='<div><div style="font-size:9px;color:#6b7280;margin-bottom:2px;text-transform:uppercase;letter-spacing:0.04em;">Thermal</div><img src="'+f.thermalSrc+'" style="width:100%;border-radius:4px;display:block;"></div>';
+        photos+='<div><div style="font-size:9px;color:#6b7280;margin-bottom:2px;text-transform:uppercase;letter-spacing:0.04em;">Visible light</div><img src="'+f.visibleSrc+'" style="width:100%;border-radius:4px;display:block;"></div>';
         photos+='</div>';
+      } else if(f.thermalSrc){
+        photos='<div style="margin-top:6px;"><div style="font-size:9px;color:#6b7280;margin-bottom:2px;text-transform:uppercase;letter-spacing:0.04em;">Thermal</div><img src="'+f.thermalSrc+'" style="max-width:100%;border-radius:4px;display:block;"></div>';
+      } else if(f.visibleSrc){
+        photos='<div style="margin-top:6px;"><div style="font-size:9px;color:#6b7280;margin-bottom:2px;text-transform:uppercase;letter-spacing:0.04em;">Visible light</div><img src="'+f.visibleSrc+'" style="max-width:100%;border-radius:4px;display:block;"></div>';
       }
-      return '<div style="border:1px solid #e5e7eb;border-radius:10px;padding:1rem;margin-bottom:1rem;page-break-inside:avoid;">'+
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'+
-        '<span style="font-weight:600;font-size:15px;">Finding #'+(i+1)+(f.location?' \u2014 '+f.location:'')+' </span>'+badgeHtml(f.status)+'</div>'+
-        photos+
-        (f.temp?'<p style="font-size:13px;color:#374151;margin-bottom:6px;"><strong>Max temp:</strong> '+f.temp+'</p>':'')+
-        (f.notes?'<p style="font-size:14px;color:#374151;line-height:1.6;">'+f.notes+'</p>':'')+
+      return '<div style="border:1px solid #e5e7eb;border-radius:5px;padding:7px 9px;margin-bottom:7px;page-break-inside:avoid;">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:'+(metaRow||photos?'5':'0')+'px;">'+
+        '<span style="font-weight:700;font-size:12px;color:#111827;">Finding #'+(i+1)+(f.location?' — '+f.location:'')+'</span>'+
+        '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:'+statusBg[f.status]+';color:'+statusColor[f.status]+';">'+statusLbl[f.status]+'</span>'+
+        '</div>'+
+        metaRow+photos+
         '</div>';
     }).join('');
 
-  var cats=[...new Set(CHECKS.map(function(c){return c.cat;}))];
-  var clHtml='';
-  cats.forEach(function(cat){
-    clHtml+='<div style="margin-bottom:12px;"><p style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px;">'+cat+'</p>';
-    CHECKS.filter(function(c){return c.cat===cat;}).forEach(function(c){
-      var done=!!ckState[c.id];
-      clHtml+='<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:13px;color:'+(done?'#111827':'#9ca3af')+';">'+
-        '<span style="color:'+(done?'#059669':'#d1d5db')+';font-size:15px;">'+(done?'&#10003;':'&#9675;')+'</span>'+c.label+'</div>';
-    });
-    clHtml+='</div>';
-  });
+  var half=Math.ceil(CHECKS.length/2);
+  var col1=CHECKS.slice(0,half);
+  var col2=CHECKS.slice(half);
+  function ckRow(c){
+    var done=!!ckState[c.id];
+    return '<div style="display:flex;align-items:flex-start;gap:4px;padding:2px 0;font-size:10px;color:'+(done?'#111827':'#9ca3af')+';">'+
+      '<span style="color:'+(done?'#059669':'#d1d5db')+';font-size:11px;flex-shrink:0;line-height:1.4;">'+(done?'✓':'○')+'</span>'+
+      '<span style="line-height:1.4;">'+c.label+'</span></div>';
+  }
+  var clHtml='<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px;">'+
+    '<div>'+col1.map(ckRow).join('')+'</div>'+
+    '<div>'+col2.map(ckRow).join('')+'</div>'+
+    '</div>';
 
-  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
-    '<title>Bakken Inspection '+name+'</title>'+
-    '<style>body{font-family:Arial,sans-serif;color:#111827;margin:0;padding:0;}@media print{@page{margin:1.5cm;}}</style></head><body>'+
-    '<div style="max-width:680px;margin:0 auto;padding:2rem;">'+
-    '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #111827;padding-bottom:1rem;margin-bottom:1.5rem;">'+
-    '<img src="data:image/jpeg;base64,'+LOGO+'" style="height:48px;width:auto;" alt="Bakken Electric">'+
-    '<div style="text-align:right;"><p style="font-size:15px;font-weight:700;margin-bottom:2px;">Elite Protection Plan</p>'+
-    '<p style="font-size:12px;color:#6b7280;">Annual electrical inspection report</p>'+
-    '<p style="font-size:12px;color:#6b7280;margin-top:2px;">'+date+(tech?' &middot; Tech: '+tech:'')+' &middot; '+yr+'</p></div></div>'+
-    '<div style="background:#f9fafb;border-radius:8px;padding:1rem;margin-bottom:1.5rem;">'+
-    '<p style="font-size:16px;font-weight:600;">'+name+'</p>'+(addr?'<p style="font-size:13px;color:#6b7280;margin-top:3px;">'+addr+'</p>':'')+
+  var css='*{box-sizing:border-box;}body{font-family:Arial,Helvetica,sans-serif;color:#111827;margin:0;padding:0;font-size:12px;}'+
+    '.sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#6b7280;margin:12px 0 5px;padding-bottom:3px;border-bottom:1px solid #e5e7eb;}'+
+    '@media print{@page{margin:1cm 1.2cm;size:letter;}}';
+
+  var header=
+    '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #111827;padding-bottom:7px;margin-bottom:9px;">'+
+    '<img src="data:image/jpeg;base64,'+LOGO+'" style="height:32px;width:auto;" alt="Bakken Electric">'+
+    '<div style="text-align:right;line-height:1.35;">'+
+    '<div style="font-size:12px;font-weight:700;">Elite Protection Plan — Inspection Report</div>'+
+    '<div style="font-size:10px;color:#6b7280;">'+date+(tech?' &middot; Tech: '+tech:'')+' &middot; '+yr+'</div>'+
+    '</div></div>';
+
+  var customerRow=
+    '<div style="display:flex;justify-content:space-between;align-items:center;background:#f9fafb;border-radius:5px;padding:7px 9px;margin-bottom:9px;">'+
+    '<div><div style="font-size:13px;font-weight:700;">'+name+'</div>'+(addr?'<div style="font-size:10px;color:#6b7280;margin-top:1px;">'+addr+'</div>':'')+
     '</div>'+
-    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem;">'+
-    '<div style="border:1px solid #e5e7eb;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:26px;font-weight:700;color:#065f46;">'+nOk+'</div><div style="font-size:12px;color:#6b7280;margin-top:2px;">Normal</div></div>'+
-    '<div style="border:1px solid #e5e7eb;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:26px;font-weight:700;color:#92400e;">'+nMon+'</div><div style="font-size:12px;color:#6b7280;margin-top:2px;">Monitor</div></div>'+
-    '<div style="border:1px solid #e5e7eb;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:26px;font-weight:700;color:#991b1b;">'+nAct+'</div><div style="font-size:12px;color:#6b7280;margin-top:2px;">Action required</div></div></div>'+
-    '<h2 style="font-size:15px;font-weight:700;margin-bottom:1rem;border-bottom:1px solid #e5e7eb;padding-bottom:6px;">Thermal findings</h2>'+fHtml+
-    '<h2 style="font-size:15px;font-weight:700;margin:1.5rem 0 1rem;border-bottom:1px solid #e5e7eb;padding-bottom:6px;">Inspection checklist</h2>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 2rem;">'+clHtml+'</div>'+
-    (notes?'<h2 style="font-size:15px;font-weight:700;margin:1.5rem 0 1rem;border-bottom:1px solid #e5e7eb;padding-bottom:6px;">Technician summary</h2><p style="font-size:14px;line-height:1.7;">'+notes+'</p>':'')+
-    '<div style="background:#f9fafb;border-radius:8px;padding:1rem;margin-top:1.5rem;"><p style="font-size:13px;"><strong>Next recommended visit:</strong> '+nxt+'</p></div>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid #e5e7eb;">'+
-    '<div><p style="font-size:12px;color:#6b7280;margin-bottom:4px;">Customer signature</p><div style="border-bottom:1.5px solid #374151;height:40px;"></div><p style="font-size:11px;color:#9ca3af;margin-top:4px;">I have reviewed the findings above</p></div>'+
-    '<div><p style="font-size:12px;color:#6b7280;margin-bottom:4px;">Technician signature</p><div style="border-bottom:1.5px solid #374151;height:40px;"></div><p style="font-size:11px;color:#9ca3af;margin-top:4px;">'+(tech||'Bakken Electric technician')+'</p></div></div>'+
-    '<div style="border-top:1px solid #e5e7eb;margin-top:2rem;padding-top:1rem;display:flex;justify-content:space-between;align-items:center;">'+
-    '<img src="data:image/jpeg;base64,'+LOGO+'" style="height:28px;width:auto;opacity:0.5;" alt="Bakken Electric">'+
-    '<p style="font-size:11px;color:#9ca3af;">bakkenelectric.com &middot; For property owner records.</p></div></div>'+
+    '<div style="display:flex;gap:6px;text-align:center;flex-shrink:0;">'+
+    '<div style="background:#d1fae5;border-radius:5px;padding:3px 9px;"><div style="font-size:15px;font-weight:700;color:#065f46;">'+nOk+'</div><div style="font-size:9px;color:#065f46;margin-top:1px;">Normal</div></div>'+
+    '<div style="background:#fef3c7;border-radius:5px;padding:3px 9px;"><div style="font-size:15px;font-weight:700;color:#92400e;">'+nMon+'</div><div style="font-size:9px;color:#92400e;margin-top:1px;">Monitor</div></div>'+
+    '<div style="background:#fee2e2;border-radius:5px;padding:3px 9px;"><div style="font-size:15px;font-weight:700;color:#991b1b;">'+nAct+'</div><div style="font-size:9px;color:#991b1b;margin-top:1px;">Action</div></div>'+
+    '</div></div>';
+
+  var summarySection=
+    '<div style="background:#f9fafb;border-radius:5px;padding:7px 9px;margin-top:9px;">'+
+    (notes?'<p style="font-size:11px;color:#374151;line-height:1.5;margin:0 0 4px;">'+notes+'</p>':'')+
+    '<div style="font-size:11px;"><strong>Next visit:</strong> '+nxt+'</div>'+
+    '</div>';
+
+  var sigSection=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px;padding-top:10px;border-top:1px solid #e5e7eb;">'+
+    '<div><div style="font-size:9px;color:#6b7280;margin-bottom:4px;">Customer signature</div><div style="border-bottom:1px solid #374151;height:28px;"></div><div style="font-size:9px;color:#9ca3af;margin-top:2px;">I have reviewed the findings above</div></div>'+
+    '<div><div style="font-size:9px;color:#6b7280;margin-bottom:4px;">Technician signature</div><div style="border-bottom:1px solid #374151;height:28px;"></div><div style="font-size:9px;color:#9ca3af;margin-top:2px;">'+(tech||'Bakken Electric technician')+'</div></div>'+
+    '</div>';
+
+  var footerSection=
+    '<div style="border-top:1px solid #e5e7eb;margin-top:10px;padding-top:7px;display:flex;justify-content:space-between;align-items:center;">'+
+    '<img src="data:image/jpeg;base64,'+LOGO+'" style="height:18px;width:auto;opacity:0.4;" alt="Bakken Electric">'+
+    '<span style="font-size:9px;color:#9ca3af;">bakkenelectric.com &middot; For property owner records.</span></div>';
+
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Bakken Inspection '+name+'</title>'+
+    '<style>'+css+'</style></head><body>'+
+    '<div style="max-width:700px;margin:0 auto;padding:1cm;">'+
+    header+customerRow+
+    '<div class="sec-title">Thermal findings</div>'+fHtml+
+    '<div class="sec-title">Inspection checklist</div>'+clHtml+
+    summarySection+sigSection+footerSection+
+    '</div>'+
     '<script>window.onload=function(){window.print();}<\/script></body></html>';
 }
-
 function generateReport(){
   commitSave();
   var html=buildReportHtml(getSnapshot());
