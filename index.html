@@ -455,28 +455,85 @@ function closeLightbox(){
 document.getElementById('lightbox').addEventListener('click',closeLightbox);
 document.getElementById('lightbox-close').addEventListener('click',function(e){e.stopPropagation();closeLightbox();});
 
+// ---- INDEXEDDB STORAGE ----
+var DB_NAME='bakken_db';
+var DB_VERSION=1;
+var DB_STORE='inspections';
+var db=null;
+
+function openDB(cb){
+  if(db){cb(db);return;}
+  var req=indexedDB.open(DB_NAME,DB_VERSION);
+  req.onupgradeneeded=function(e){
+    var d=e.target.result;
+    if(!d.objectStoreNames.contains(DB_STORE)){
+      d.createObjectStore(DB_STORE,{keyPath:'id'});
+    }
+  };
+  req.onsuccess=function(e){db=e.target.result;cb(db);};
+  req.onerror=function(){console.error('IndexedDB failed');};
+}
+
+function dbSave(snap,cb){
+  openDB(function(d){
+    var tx=d.transaction(DB_STORE,'readwrite');
+    var store=tx.objectStore(DB_STORE);
+    store.put(snap);
+    tx.oncomplete=function(){if(cb)cb();};
+    tx.onerror=function(e){console.error('Save error',e);};
+  });
+}
+
+function dbLoadAll(cb){
+  openDB(function(d){
+    var tx=d.transaction(DB_STORE,'readonly');
+    var store=tx.objectStore(DB_STORE);
+    var req=store.getAll();
+    req.onsuccess=function(){
+      var results=req.result||[];
+      results.sort(function(a,b){return (b.savedAt||'').localeCompare(a.savedAt||'');});
+      cb(results);
+    };
+    req.onerror=function(){cb([]);};
+  });
+}
+
+function dbDelete(id,cb){
+  openDB(function(d){
+    var tx=d.transaction(DB_STORE,'readwrite');
+    tx.objectStore(DB_STORE).delete(id);
+    tx.oncomplete=function(){if(cb)cb();};
+  });
+}
+
 // ---- AUTO SAVE ----
 function autoSave(){
   clearTimeout(saveTimer);
   var dot=document.getElementById('save-dot');
   if(dot){dot.style.opacity='1';dot.style.background='#ff9500';}
-  saveTimer=setTimeout(commitSave,800);
+  saveTimer=setTimeout(commitSave,1000);
 }
 
 function commitSave(){
   var snap=getSnapshot();
-  if(!snap.custName&&findings.length===0) return;
+  if(!snap.custName&&findings.length===0){
+    var dot=document.getElementById('save-dot');
+    if(dot)dot.style.opacity='0';
+    return;
+  }
   if(!currentId) currentId='insp-'+Date.now();
   snap.id=currentId;
   snap.savedAt=new Date().toISOString();
-  var records=loadRecords();
-  var idx=records.findIndex(function(r){return r.id===currentId;});
-  if(idx>-1) records[idx]=snap; else records.unshift(snap);
-  try{localStorage.setItem('bakken_inspections',JSON.stringify(records));}catch(e){}
-  var dot=document.getElementById('save-dot');
-  if(dot){dot.style.background='#34c759';}
-  var lbl=document.getElementById('current-label');
-  if(lbl) lbl.textContent=(snap.custName?snap.custName+' \u2014 ':'')+'auto saved';
+  dbSave(snap,function(){
+    var dot=document.getElementById('save-dot');
+    if(dot){dot.style.opacity='1';dot.style.background='#34c759';}
+    var lbl=document.getElementById('current-label');
+    if(lbl) lbl.textContent=(snap.custName?snap.custName+'\u2014 ':'')+'saved';
+    setTimeout(function(){
+      var dot2=document.getElementById('save-dot');
+      if(dot2)dot2.style.opacity='0.4';
+    },2000);
+  });
 }
 
 function getSnapshot(){
@@ -496,42 +553,46 @@ function getSnapshot(){
 }
 
 function loadRecords(){
-  try{var d=localStorage.getItem('bakken_inspections');return d?JSON.parse(d):[];}
-  catch(e){return [];}
+  // legacy shim - not used directly anymore
+  return [];
 }
 
 // ---- HISTORY ----
 function renderHistory(){
-  var records=loadRecords();
   var el=document.getElementById('hist-list');
-  el.innerHTML='';
-  document.getElementById('hist-count').textContent=records.length+' inspection'+(records.length!==1?'s':'')+' saved';
-  if(records.length===0){
-    el.innerHTML='<div class="empty-state"><div class="empty-icon">&#128203;</div><div class="empty-title">No inspections yet</div><div class="empty-sub">Complete your first inspection and it will appear here automatically.</div></div>';
-    return;
-  }
-  records.forEach(function(r){
-    var nOk=(r.findings||[]).filter(function(f){return f.status==='ok';}).length;
-    var nMon=(r.findings||[]).filter(function(f){return f.status==='monitor';}).length;
-    var nAct=(r.findings||[]).filter(function(f){return f.status==='action';}).length;
-    var dateStr=r.inspDate?formatDate(r.inspDate):(r.savedAt?formatDate(r.savedAt.split('T')[0]):'Unknown date');
-    var div=document.createElement('div');
-    div.className='hist-item';
-    var badges='';
-    if(nOk) badges+='<span class="hist-badge hb-ok">'+nOk+' OK</span>';
-    if(nMon) badges+='<span class="hist-badge hb-mon">'+nMon+' Monitor</span>';
-    if(nAct) badges+='<span class="hist-badge hb-act">'+nAct+' Action</span>';
-    if(!nOk&&!nMon&&!nAct) badges+='<span class="hist-badge" style="background:#f2f2f7;color:#8e8e93;">No findings</span>';
-    div.innerHTML='<div class="hist-head"><div><div class="hist-name">'+(r.custName||'Unnamed customer')+'</div><div class="hist-date">'+dateStr+(r.techName?' &middot; '+r.techName:'')+'</div></div><div class="hist-badges">'+badges+'</div></div>'+
-      '<div class="hist-actions">'+
-      '<button class="hist-btn" id="edit-'+r.id+'">&#9998; Edit</button>'+
-      '<button class="hist-btn" id="rep-'+r.id+'">&#128196; Report</button>'+
-      '<button class="hist-btn danger" id="del-'+r.id+'">&#128465; Delete</button>'+
-      '</div>';
-    el.appendChild(div);
-    document.getElementById('edit-'+r.id).addEventListener('click',function(){resumeInspection(r.id);});
-    document.getElementById('rep-'+r.id).addEventListener('click',function(){regenReport(r.id);});
-    document.getElementById('del-'+r.id).addEventListener('click',function(){deleteInspection(r.id);});
+  el.innerHTML='<div class="empty-state"><div class="empty-icon" style="font-size:24px;">&#8987;</div><div class="empty-sub">Loading...</div></div>';
+  dbLoadAll(function(records){
+    el.innerHTML='';
+    document.getElementById('hist-count').textContent=records.length+' inspection'+(records.length!==1?'s':'')+' saved';
+    if(records.length===0){
+      el.innerHTML='<div class="empty-state"><div class="empty-icon">&#128203;</div><div class="empty-title">No inspections yet</div><div class="empty-sub">Complete your first inspection and it will appear here automatically.</div></div>';
+      return;
+    }
+    records.forEach(function(r){
+      var nOk=(r.findings||[]).filter(function(f){return f.status==='ok';}).length;
+      var nMon=(r.findings||[]).filter(function(f){return f.status==='monitor';}).length;
+      var nAct=(r.findings||[]).filter(function(f){return f.status==='action';}).length;
+      var dateStr=r.inspDate?formatDate(r.inspDate):(r.savedAt?formatDate(r.savedAt.split('T')[0]):'Unknown date');
+      var div=document.createElement('div');
+      div.className='hist-item';
+      var badges='';
+      if(nOk) badges+='<span class="hist-badge hb-ok">'+nOk+' OK</span>';
+      if(nMon) badges+='<span class="hist-badge hb-mon">'+nMon+' Monitor</span>';
+      if(nAct) badges+='<span class="hist-badge hb-act">'+nAct+' Action</span>';
+      if(!nOk&&!nMon&&!nAct) badges+='<span class="hist-badge" style="background:#f2f2f7;color:#8e8e93;">No findings</span>';
+      div.innerHTML='<div class="hist-head"><div><div class="hist-name">'+(r.custName||'Unnamed customer')+'</div><div class="hist-date">'+dateStr+(r.techName?' &middot; '+r.techName:'')+'</div></div><div class="hist-badges">'+badges+'</div></div>'+
+        '<div class="hist-actions">'+
+        '<button class="hist-btn" id="edit-'+r.id+'">&#9998; Edit</button>'+
+        '<button class="hist-btn" id="rep-'+r.id+'">&#128196; Report</button>'+
+        '<button class="hist-btn danger" id="del-'+r.id+'">&#128465; Delete</button>'+
+        '</div>';
+      el.appendChild(div);
+      (function(rid){
+        document.getElementById('edit-'+rid).addEventListener('click',function(){resumeInspection(rid);});
+        document.getElementById('rep-'+rid).addEventListener('click',function(){regenReport(rid);});
+        document.getElementById('del-'+rid).addEventListener('click',function(){deleteInspection(rid);});
+      })(r.id);
+    });
   });
 }
 
@@ -544,11 +605,12 @@ function formatDate(s){
 }
 
 function resumeInspection(id){
-  var records=loadRecords();
-  var r=records.find(function(rec){return rec.id===id;});
-  if(!r) return;
-  loadSnapshot(r);
-  switchTab('customer');
+  dbLoadAll(function(records){
+    var r=records.find(function(rec){return rec.id===id;});
+    if(!r) return;
+    loadSnapshot(r);
+    switchTab('customer');
+  });
 }
 
 function loadSnapshot(r){
@@ -577,10 +639,10 @@ function loadSnapshot(r){
 
 function deleteInspection(id){
   if(!confirm('Delete this inspection? This cannot be undone.')) return;
-  var records=loadRecords().filter(function(r){return r.id!==id;});
-  try{localStorage.setItem('bakken_inspections',JSON.stringify(records));}catch(e){}
-  if(currentId===id) currentId=null;
-  renderHistory();
+  dbDelete(id,function(){
+    if(currentId===id) currentId=null;
+    renderHistory();
+  });
 }
 
 function newInspection(){
@@ -690,11 +752,13 @@ function generateReport(){
 }
 
 function regenReport(id){
-  var r=loadRecords().find(function(rec){return rec.id===id;});
-  if(!r) return;
-  var html=buildReportHtml(r);
-  var blob=new Blob([html],{type:'text/html'});
-  window.open(URL.createObjectURL(blob),'_blank');
+  dbLoadAll(function(records){
+    var r=records.find(function(rec){return rec.id===id;});
+    if(!r) return;
+    var html=buildReportHtml(r);
+    var blob=new Blob([html],{type:'text/html'});
+    window.open(URL.createObjectURL(blob),'_blank');
+  });
 }
 
 // ---- WIRE UP STATIC BUTTONS ----
