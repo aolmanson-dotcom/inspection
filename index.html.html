@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Bakken Inspect">
+<title>Bakken Elite Inspection</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f2f2f7;color:#1c1c1e;font-size:15px;}
+.screen{display:none;min-height:100vh;padding-bottom:72px;}
+.screen.active{display:block;}
+.nav{background:#fff;border-bottom:0.5px solid #c6c6c8;padding:10px 12px 7px;position:sticky;top:0;z-index:100;}
+.nav-title{font-size:16px;font-weight:600;text-align:center;color:#1c1c1e;}
+.nav-sub{font-size:11px;color:#8e8e93;text-align:center;margin-top:1px;}
+.tabbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:0.5px solid #c6c6c8;display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0px);}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 5px;gap:2px;cursor:pointer;border:none;background:none;}
+.tab-icon{font-size:19px;line-height:1;}
+.tab-label{font-size:10px;color:#8e8e93;}
+.tab.active .tab-label{color:#004b8d;}
+.content{padding:10px 12px;}
+.card{background:#fff;border-radius:10px;overflow:hidden;margin-bottom:10px;}
+.card-header{padding:8px 14px;border-bottom:0.5px solid #f2f2f7;font-size:11px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:0.05em;}
+.row{display:flex;align-items:center;border-bottom:0.5px solid #f2f2f7;padding:0 14px;}
+.row:last-child{border-bottom:none;}
+.row label{font-size:14px;color:#1c1c1e;min-width:76px;padding:11px 8px 11px 0;flex-shrink:0;}
+.row input,.row select,.row textarea{flex:1;border:none;outline:none;font-size:14px;color:#1c1c1e;background:transparent;padding:11px 0;font-family:inherit;}
+.row select{-webkit-appearance:none;}
+.finding{background:#fff;border-radius:10px;margin-bottom:10px;overflow:hidden;}
+.finding-head{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:0.5px solid #f2f2f7;}
+.finding-num{font-size:14px;font-weight:600;}
+.status-pill{font-size:12px;font-weight:600;padding:4px 11px;border-radius:20px;cursor:pointer;border:none;}
+.pill-ok{background:#d1fae5;color:#065f46;}
+.pill-monitor{background:#fef3c7;color:#92400e;}
+.pill-action{background:#fee2e2;color:#991b1b;}
+.remove-btn{background:none;border:none;font-size:22px;color:#c7c7cc;padding:0 0 0 8px;cursor:pointer;line-height:1;}
+.photo-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 14px;}
+.photo-box{border:1.5px dashed #c6c6c8;border-radius:8px;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;position:relative;overflow:hidden;background:#fafafa;}
+.photo-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.photo-box input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;}
+.photo-box-lbl{font-size:11px;color:#8e8e93;text-align:center;padding:0 4px;z-index:1;}
+.photo-box-ico{font-size:22px;z-index:1;}
+.photo-box.loaded .photo-box-lbl,.photo-box.loaded .photo-box-ico{display:none;}
+.check-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:0.5px solid #f2f2f7;cursor:pointer;}
+.check-row:last-child{border-bottom:none;}
+.check-circle{width:24px;height:24px;border-radius:50%;border:2px solid #c6c6c8;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.check-circle.on{background:#004b8d;border-color:#004b8d;}
+.check-circle svg{display:none;}
+.check-circle.on svg{display:block;}
+.check-lbl{font-size:14px;color:#1c1c1e;line-height:1.35;}
+.cat-hdr{font-size:11px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:0.05em;padding:12px 14px 4px;background:#fff;}
+.sum-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.sum-card{background:#fff;border-radius:10px;padding:10px 6px;text-align:center;}
+.sum-n{font-size:24px;font-weight:700;}
+.sum-l{font-size:11px;color:#8e8e93;margin-top:2px;}
+.c-ok .sum-n{color:#065f46;}
+.c-mon .sum-n{color:#92400e;}
+.c-act .sum-n{color:#991b1b;}
+.btn-primary{width:100%;padding:14px;background:#004b8d;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px;display:block;}
+.btn-secondary{width:100%;padding:12px;background:#fff;color:#636366;border:1px solid #c6c6c8;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;margin-bottom:10px;display:block;}
+.btn-add{width:100%;padding:12px;background:#fff;color:#004b8d;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;margin-bottom:4px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.notes-box{background:#fff;border-radius:10px;overflow:hidden;margin-bottom:10px;}
+.notes-box textarea{width:100%;border:none;outline:none;font-size:14px;color:#1c1c1e;padding:12px 14px;font-family:inherit;min-height:96px;resize:none;display:block;}
+.finding-notes{width:100%;border:1px solid #e5e5ea;border-radius:8px;padding:9px 11px;font-size:14px;font-family:-apple-system,sans-serif;color:#1c1c1e;outline:none;resize:none;min-height:66px;}
+</style>
+</head>
+<body>
+
+<div class="screen active" id="screen-customer">
+  <div class="nav"><div class="nav-title">Elite Inspection</div><div class="nav-sub">Customer info</div></div>
+  <div class="content">
+    <div class="card">
+      <div class="card-header">Customer</div>
+      <div class="row"><label>Name</label><input type="text" id="cust-name" placeholder="Jane Smith" autocomplete="name"></div>
+      <div class="row"><label>Address</label><input type="text" id="cust-addr" placeholder="123 Main St, Minneapolis MN"></div>
+    </div>
+    <div class="card">
+      <div class="card-header">Inspection</div>
+      <div class="row"><label>Date</label><input type="date" id="insp-date"></div>
+      <div class="row"><label>Tech</label><input type="text" id="tech-name" placeholder="Nils"></div>
+      <div class="row"><label>Year</label>
+        <select id="mem-year"><option>Year 1</option><option>Year 2</option><option>Year 3</option><option>Year 4</option><option>Year 5+</option></select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="screen-findings">
+  <div class="nav"><div class="nav-title">Thermal Findings</div><div class="nav-sub">Tap status badge to cycle severity</div></div>
+  <div class="content">
+    <div class="sum-row">
+      <div class="sum-card c-ok"><div class="sum-n" id="sum-ok">0</div><div class="sum-l">Normal</div></div>
+      <div class="sum-card c-mon"><div class="sum-n" id="sum-mon">0</div><div class="sum-l">Monitor</div></div>
+      <div class="sum-card c-act"><div class="sum-n" id="sum-act">0</div><div class="sum-l">Action</div></div>
+    </div>
+    <div id="findings-list"></div>
+    <button class="btn-add" onclick="addFinding()"><span style="font-size:20px;font-weight:300;">+</span> Add finding</button>
+  </div>
+</div>
+
+<div class="screen" id="screen-checklist">
+  <div class="nav"><div class="nav-title">Checklist</div><div class="nav-sub" id="ck-prog">0 of 11 complete</div></div>
+  <div class="content">
+    <div class="card" id="ck-list"></div>
+  </div>
+</div>
+
+<div class="screen" id="screen-summary">
+  <div class="nav"><div class="nav-title">Summary & Report</div><div class="nav-sub">Review before generating</div></div>
+  <div class="content">
+    <div class="card">
+      <div class="card-header">Next visit</div>
+      <div class="row">
+        <select id="next-visit" style="width:100%;padding:14px 0;">
+          <option>12 months (standard)</option>
+          <option>6 months (monitor required)</option>
+          <option>3 months (action required)</option>
+          <option>Immediate follow-up needed</option>
+        </select>
+      </div>
+    </div>
+    <div class="notes-box"><textarea id="overall-notes" placeholder="Overall notes and recommendations..."></textarea></div>
+    <button class="btn-primary" onclick="generateReport()">Generate & Save Report</button>
+    <button class="btn-secondary" onclick="resetAll()">Start new inspection</button>
+  </div>
+</div>
+
+<div class="tabbar">
+  <button class="tab active" onclick="showScreen('customer',this)">
+    <span class="tab-icon">&#128100;</span><span class="tab-label">Customer</span>
+  </button>
+  <button class="tab" onclick="showScreen('findings',this)">
+    <span class="tab-icon">&#128293;</span><span class="tab-label">Findings</span>
+  </button>
+  <button class="tab" onclick="showScreen('checklist',this)">
+    <span class="tab-icon">&#9989;</span><span class="tab-label">Checklist</span>
+  </button>
+  <button class="tab" onclick="showScreen('summary',this)">
+    <span class="tab-icon">&#128196;</span><span class="tab-label">Report</span>
+  </button>
+</div>
+
+<script>
+var LOGO="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";
+var CHECKS=[
+  {id:"c1",label:"Full panel thermal scan completed",cat:"Thermal imaging"},
+  {id:"c2",label:"Panel cover removed and inspected",cat:"Thermal imaging"},
+  {id:"c3",label:"Main breaker torque verified",cat:"Torque check"},
+  {id:"c4",label:"All branch breakers torqued to spec",cat:"Torque check"},
+  {id:"c5",label:"Neutral bar connections verified",cat:"Torque check"},
+  {id:"c6",label:"Ground bar connections verified",cat:"Torque check"},
+  {id:"c7",label:"EV charger present (skip if N/A)",cat:"EV charger"},
+  {id:"c8",label:"EV charger thermal scan completed",cat:"EV charger"},
+  {id:"c9",label:"EV charger wire connections inspected",cat:"EV charger"},
+  {id:"c10",label:"EV charger mounting and enclosure checked",cat:"EV charger"},
+  {id:"c11",label:"Written findings reviewed with customer",cat:"Wrap-up"}
+];
+var checked={};var findings=[];var fc=0;
+
+function showScreen(name,btn){
+  document.querySelectorAll(".screen").forEach(function(s){s.classList.remove("active");});
+  document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active");});
+  document.getElementById("screen-"+name).classList.add("active");
+  if(btn)btn.classList.add("active");
+  if(name==="findings")updateBar();
+}
+
+function buildCL(){
+  var el=document.getElementById("ck-list");
+  var lastCat="";
+  CHECKS.forEach(function(item){
+    if(item.cat!==lastCat){
+      lastCat=item.cat;
+      var h=document.createElement("div");
+      h.className="cat-hdr";h.textContent=item.cat;el.appendChild(h);
+    }
+    var r=document.createElement("div");
+    r.className="check-row";r.onclick=function(){toggleCk(item.id);};
+    r.innerHTML='<div class="check-circle" id="box-'+item.id+'"><svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5L5 9L13 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">'+item.label+"</span>";
+    el.appendChild(r);
+  });
+}
+
+function toggleCk(id){
+  checked[id]=!checked[id];
+  var b=document.getElementById("box-"+id);
+  if(checked[id])b.classList.add("on");else b.classList.remove("on");
+  var done=Object.values(checked).filter(Boolean).length;
+  document.getElementById("ck-prog").textContent=done+" of "+CHECKS.length+" complete";
+}
+
+var STATUS_CYCLE=["ok","monitor","action"];
+var STATUS_LBL={ok:"Normal",monitor:"Monitor",action:"Action required"};
+var STATUS_CLS={ok:"pill-ok",monitor:"pill-monitor",action:"pill-action"};
+
+function addFinding(){
+  fc++;var id=fc;
+  findings.push({id:id,status:"ok",location:"",temp:"",notes:"",thermalSrc:null,visibleSrc:null});
+  var d=document.createElement("div");
+  d.className="finding";d.id="finding-"+id;
+  d.innerHTML='<div class="finding-head"><span class="finding-num">Finding #'+id+'</span><div style="display:flex;align-items:center;gap:6px;"><button class="status-pill pill-ok" id="pill-'+id+'" onclick="cycleStatus('+id+')">Normal</button><button class="remove-btn" onclick="removeFinding('+id+')" aria-label="Remove">&times;</button></div></div>'+
+  '<div class="row"><label>Location</label><input type="text" placeholder="e.g. Breaker #14" oninput="setF('+id+',\'location\',this.value)"></div>'+
+  '<div class="row"><label>Max temp</label><input type="text" placeholder="e.g. 118°F" oninput="setF('+id+',\'temp\',this.value)"></div>'+
+  '<div class="photo-pair"><div class="photo-box" id="tb-'+id+'"><input type="file" accept="image/*" onchange="doPhoto('+id+',\'thermal\',this)"><div class="photo-box-ico">&#128293;</div><div class="photo-box-lbl">Thermal photo</div></div>'+
+  '<div class="photo-box" id="vb-'+id+'"><input type="file" accept="image/*" onchange="doPhoto('+id+',\'visible\',this)"><div class="photo-box-ico">&#128247;</div><div class="photo-box-lbl">Visible photo</div></div></div>'+
+  '<div style="padding:0 16px 14px;"><textarea class="finding-notes" placeholder="Notes on this finding..." oninput="setF('+id+',\'notes\',this.value)"></textarea></div>';
+  document.getElementById("findings-list").appendChild(d);
+  updateBar();
+}
+
+function cycleStatus(id){
+  var obj=findings.find(function(f){return f.id===id;});
+  var i=STATUS_CYCLE.indexOf(obj.status);
+  obj.status=STATUS_CYCLE[(i+1)%3];
+  var p=document.getElementById("pill-"+id);
+  p.textContent=STATUS_LBL[obj.status];p.className="status-pill "+STATUS_CLS[obj.status];
+  updateBar();
+}
+function setF(id,field,val){var o=findings.find(function(f){return f.id===id;});if(o)o[field]=val;}
+function doPhoto(id,type,input){
+  if(!input.files[0])return;
+  var r=new FileReader();
+  r.onload=function(e){
+    var o=findings.find(function(f){return f.id===id;});
+    if(o)o[type+"Src"]=e.target.result;
+    var box=document.getElementById((type==="thermal"?"tb":"vb")+"-"+id);
+    var old=box.querySelector("img");if(old)old.remove();
+    var img=document.createElement("img");img.src=e.target.result;
+    box.appendChild(img);box.classList.add("loaded");
+  };
+  r.readAsDataURL(input.files[0]);
+}
+function removeFinding(id){
+  var i=findings.findIndex(function(f){return f.id===id;});
+  if(i>-1)findings.splice(i,1);
+  var el=document.getElementById("finding-"+id);if(el)el.remove();
+  updateBar();
+}
+function updateBar(){
+  document.getElementById("sum-ok").textContent=findings.filter(function(f){return f.status==="ok";}).length;
+  document.getElementById("sum-mon").textContent=findings.filter(function(f){return f.status==="monitor";}).length;
+  document.getElementById("sum-act").textContent=findings.filter(function(f){return f.status==="action";}).length;
+}
+function badge(s){
+  if(s==="monitor")return '<span style="background:#fef3c7;color:#92400e;font-size:12px;padding:3px 10px;border-radius:20px;font-weight:600;">Monitor</span>';
+  if(s==="action")return '<span style="background:#fee2e2;color:#991b1b;font-size:12px;padding:3px 10px;border-radius:20px;font-weight:600;">Action required</span>';
+  return '<span style="background:#d1fae5;color:#065f46;font-size:12px;padding:3px 10px;border-radius:20px;font-weight:600;">Normal</span>';
+}
+function generateReport(){
+  var name=document.getElementById("cust-name").value||"Customer";
+  var addr=document.getElementById("cust-addr").value||"";
+  var date=document.getElementById("insp-date").value||new Date().toISOString().split("T")[0];
+  var tech=document.getElementById("tech-name").value||"";
+  var yr=document.getElementById("mem-year").value;
+  var notes=document.getElementById("overall-notes").value||"";
+  var nxt=document.getElementById("next-visit").value;
+  var nOk=findings.filter(function(f){return f.status==="ok";}).length;
+  var nMon=findings.filter(function(f){return f.status==="monitor";}).length;
+  var nAct=findings.filter(function(f){return f.status==="action";}).length;
+  var fHtml=findings.length===0?'<p style="color:#6b7280;font-size:14px;font-style:italic;padding:1rem 0;">No findings recorded.</p>':
+    findings.map(function(f,i){
+      return '<div style="border:1px solid #e5e7eb;border-radius:10px;padding:1rem;margin-bottom:1rem;page-break-inside:avoid;">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'+
+        '<span style="font-weight:600;font-size:15px;">Finding #'+(i+1)+(f.location?" — "+f.location:"")+'</span>'+badge(f.status)+'</div>'+
+        ((f.thermalSrc||f.visibleSrc)?'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">'+
+          (f.thermalSrc?'<div><p style="font-size:11px;color:#6b7280;margin-bottom:4px;">Thermal</p><img src="'+f.thermalSrc+'" style="width:100%;border-radius:6px;max-height:180px;object-fit:cover;"></div>':"<div></div>")+
+          (f.visibleSrc?'<div><p style="font-size:11px;color:#6b7280;margin-bottom:4px;">Visible light</p><img src="'+f.visibleSrc+'" style="width:100%;border-radius:6px;max-height:180px;object-fit:cover;"></div>':"<div></div>")+
+        '</div>':"")+(f.temp?'<p style="font-size:13px;color:#374151;margin-bottom:6px;"><strong>Max temp:</strong> '+f.temp+'</p>':"")+(f.notes?'<p style="font-size:14px;color:#374151;line-height:1.6;">'+f.notes+'</p>':"")+'</div>';
+    }).join("");
+  var cats=[...new Set(CHECKS.map(function(c){return c.cat;}))];
+  var clHtml="";
+  cats.forEach(function(cat){
+    clHtml+='<div style="margin-bottom:12px;"><p style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px;">'+cat+'</p>';
+    CHECKS.filter(function(c){return c.cat===cat;}).forEach(function(c){
+      var done=!!checked[c.id];
+      clHtml+='<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:13px;color:'+(done?"#111827":"#9ca3af")+';"><span style="color:'+(done?"#059669":"#d1d5db")+';font-size:15px;">'+(done?"✓":"○")+"</span>"+c.label+"</div>";
+    });
+    clHtml+="</div>";
+  });
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bakken Inspection '+name+'</title><style>body{font-family:Arial,sans-serif;color:#111827;margin:0;padding:0;}@media print{@page{margin:1.5cm;}}</style></head><body><div style="max-width:680px;margin:0 auto;padding:2rem;">'+
+  '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #111827;padding-bottom:1rem;margin-bottom:1.5rem;">'+
+  '<img src="data:image/jpeg;base64,'+LOGO+'" style="height:48px;width:auto;" alt="Bakken Electric">'+
+  '<div style="text-align:right;"><p style="font-size:15px;font-weight:700;margin-bottom:2px;">Elite Protection Plan</p><p style="font-size:12px;color:#6b7280;">Annual electrical inspection report</p><p style="font-size:12px;color:#6b7280;margin-top:2px;">'+date+(tech?" &middot; Tech: "+tech:"")+' &middot; '+yr+'</p></div></div>'+
+  '<div style="background:#f9fafb;border-radius:8px;padding:1rem;margin-bottom:1.5rem;"><p style="font-size:16px;font-weight:600;">'+name+'</p>'+(addr?'<p style="font-size:13px;color:#6b7280;margin-top:3px;">'+addr+"</p>":"")+'</div>'+
+  '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem;">'+
+  '<div style="border:1px solid #e5e7eb;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:26px;font-weight:700;color:#065f46;">'+nOk+'</div><div style="font-size:12px;color:#6b7280;margin-top:2px;">Normal</div></div>'+
+  '<div style="border:1px solid #e5e7eb;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:26px;font-weight:700;color:#92400e;">'+nMon+'</div><div style="font-size:12px;color:#6b7280;margin-top:2px;">Monitor</div></div>'+
+  '<div style="border:1px solid #e5e7eb;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:26px;font-weight:700;color:#991b1b;">'+nAct+'</div><div style="font-size:12px;color:#6b7280;margin-top:2px;">Action required</div></div></div>'+
+  '<h2 style="font-size:15px;font-weight:700;margin-bottom:1rem;border-bottom:1px solid #e5e7eb;padding-bottom:6px;">Thermal findings</h2>'+fHtml+
+  '<h2 style="font-size:15px;font-weight:700;margin:1.5rem 0 1rem;border-bottom:1px solid #e5e7eb;padding-bottom:6px;">Inspection checklist</h2>'+
+  '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 2rem;">'+clHtml+'</div>'+
+  (notes?'<h2 style="font-size:15px;font-weight:700;margin:1.5rem 0 1rem;border-bottom:1px solid #e5e7eb;padding-bottom:6px;">Technician summary</h2><p style="font-size:14px;line-height:1.7;">'+notes+'</p>':"")+
+  '<div style="background:#f9fafb;border-radius:8px;padding:1rem;margin-top:1.5rem;"><p style="font-size:13px;"><strong>Next recommended visit:</strong> '+nxt+'</p></div>'+
+  '<div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid #e5e7eb;">'+
+  '<div><p style="font-size:12px;color:#6b7280;margin-bottom:4px;">Customer signature</p><div style="border-bottom:1.5px solid #374151;height:40px;"></div><p style="font-size:11px;color:#9ca3af;margin-top:4px;">I have reviewed the findings above</p></div>'+
+  '<div><p style="font-size:12px;color:#6b7280;margin-bottom:4px;">Technician signature</p><div style="border-bottom:1.5px solid #374151;height:40px;"></div><p style="font-size:11px;color:#9ca3af;margin-top:4px;">'+(tech||"Bakken Electric technician")+'</p></div></div>'+
+  '<div style="border-top:1px solid #e5e7eb;margin-top:2rem;padding-top:1rem;display:flex;justify-content:space-between;align-items:center;">'+
+  '<img src="data:image/jpeg;base64,'+LOGO+'" style="height:28px;width:auto;opacity:0.5;" alt="Bakken Electric">'+
+  '<p style="font-size:11px;color:#9ca3af;">bakkenelectric.com &middot; For property owner records.</p></div></div>'+
+  '<script>window.onload=function(){window.print();}<\/script></body></html>';
+  var blob=new Blob([html],{type:"text/html"});
+  var url=URL.createObjectURL(blob);
+  window.open(url,"_blank");
+}
+function resetAll(){
+  if(!confirm("Clear all data and start a new inspection?"))return;
+  ["cust-name","cust-addr","tech-name","overall-notes"].forEach(function(id){document.getElementById(id).value="";});
+  document.getElementById("insp-date").value=new Date().toISOString().split("T")[0];
+  findings.length=0;fc=0;
+  document.getElementById("findings-list").innerHTML="";
+  CHECKS.forEach(function(c){checked[c.id]=false;var b=document.getElementById("box-"+c.id);if(b)b.classList.remove("on");});
+  document.getElementById("ck-prog").textContent="0 of "+CHECKS.length+" complete";
+  updateBar();addFinding();
+}
+buildCL();
+document.getElementById("insp-date").value=new Date().toISOString().split("T")[0];
+addFinding();
+</script>
+</body>
+</html>
