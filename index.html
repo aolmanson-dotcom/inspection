@@ -43,6 +43,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .photo-box-lbl{font-size:11px;color:#8e8e93;text-align:center;padding:0 4px;z-index:1;}
 .photo-box-ico{font-size:22px;z-index:1;}
 .photo-box.loaded .photo-box-lbl,.photo-box.loaded .photo-box-ico{display:none;}
+.photo-clear{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);z-index:2;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:20px;font-size:11px;padding:4px 10px;cursor:pointer;white-space:nowrap;}
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:999;align-items:center;justify-content:center;}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:95vw;max-height:90vh;object-fit:contain;border-radius:6px;}
+.lightbox-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:26px;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
 .check-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:0.5px solid #f2f2f7;cursor:pointer;}
 .check-row:last-child{border-bottom:none;}
 .check-circle{width:24px;height:24px;border-radius:50%;border:2px solid #c6c6c8;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
@@ -200,14 +205,25 @@ function addFinding(){
   findings.push({id:id,status:"ok",location:"",temp:"",notes:"",thermalSrc:null,visibleSrc:null});
   var d=document.createElement("div");
   d.className="finding";d.id="finding-"+id;
-  d.innerHTML='<div class="finding-head"><span class="finding-num">Finding #'+id+'</span><div style="display:flex;align-items:center;gap:6px;"><button class="status-pill pill-ok" id="pill-'+id+'" onclick="cycleStatus('+id+')">Normal</button><button class="remove-btn" onclick="removeFinding('+id+')" aria-label="Remove">&times;</button></div></div>'+
+  d.innerHTML='<div class="finding-head"><span class="finding-num"></span><div style="display:flex;align-items:center;gap:6px;"><button class="status-pill pill-ok" id="pill-'+id+'" onclick="cycleStatus('+id+')">Normal</button><button class="remove-btn" onclick="removeFinding('+id+')" aria-label="Remove">&times;</button></div></div>'+
   '<div class="row"><label>Location</label><input type="text" placeholder="e.g. Breaker #14" oninput="setF('+id+',\'location\',this.value)"></div>'+
-  '<div class="row"><label>Max temp</label><input type="text" placeholder="e.g. 118°F" oninput="setF('+id+',\'temp\',this.value)"></div>'+
-  '<div class="photo-pair"><div class="photo-box" id="tb-'+id+'"><input type="file" accept="image/*" onchange="doPhoto('+id+',\'thermal\',this)"><div class="photo-box-ico">&#128293;</div><div class="photo-box-lbl">Thermal photo</div></div>'+
-  '<div class="photo-box" id="vb-'+id+'"><input type="file" accept="image/*" onchange="doPhoto('+id+',\'visible\',this)"><div class="photo-box-ico">&#128247;</div><div class="photo-box-lbl">Visible photo</div></div></div>'+
-  '<div style="padding:0 16px 14px;"><textarea class="finding-notes" placeholder="Notes on this finding..." oninput="setF('+id+',\'notes\',this.value)"></textarea></div>';
+  '<div class="row"><label>Max temp</label><input type="text" placeholder="e.g. 118\u00b0F" oninput="setF('+id+',\'temp\',this.value)"></div>'+
+  '<div class="photo-pair">'+
+  '<div class="photo-box" id="tb-'+id+'"><input type="file" accept="image/*" onchange="doPhoto('+id+',\'thermal\',this)"><div class="photo-box-ico">&#128293;</div><div class="photo-box-lbl">Thermal photo</div><button class="photo-clear" id="tc-'+id+'" onclick="clearPhoto('+id+',\'thermal\')" style="display:none;">&#10005; Remove</button></div>'+
+  '<div class="photo-box" id="vb-'+id+'"><input type="file" accept="image/*" onchange="doPhoto('+id+',\'visible\',this)"><div class="photo-box-ico">&#128247;</div><div class="photo-box-lbl">Visible photo</div><button class="photo-clear" id="vc-'+id+'" onclick="clearPhoto('+id+',\'visible\')" style="display:none;">&#10005; Remove</button></div>'+
+  '</div>'+
+  '<div style="padding:0 14px 12px;"><textarea class="finding-notes" placeholder="Notes on this finding..." oninput="setF('+id+',\'notes\',this.value)"></textarea></div>';
   document.getElementById("findings-list").appendChild(d);
+  renumberFindings();
   updateBar();
+}
+
+function renumberFindings(){
+  var cards=document.querySelectorAll(".finding");
+  cards.forEach(function(card,i){
+    var span=card.querySelector(".finding-num");
+    if(span)span.textContent="Finding #"+(i+1);
+  });
 }
 
 function cycleStatus(id){
@@ -225,17 +241,38 @@ function doPhoto(id,type,input){
   r.onload=function(e){
     var o=findings.find(function(f){return f.id===id;});
     if(o)o[type+"Src"]=e.target.result;
-    var box=document.getElementById((type==="thermal"?"tb":"vb")+"-"+id);
+    var prefix=type==="thermal"?"tb":"vb";
+    var clearId=type==="thermal"?"tc":"vc";
+    var box=document.getElementById(prefix+"-"+id);
     var old=box.querySelector("img");if(old)old.remove();
     var img=document.createElement("img");img.src=e.target.result;
-    box.appendChild(img);box.classList.add("loaded");
+    img.style.cursor="zoom-in";
+    img.onclick=function(ev){ev.stopPropagation();openLightbox(e.target.result);};
+    box.insertBefore(img,box.firstChild);
+    box.classList.add("loaded");
+    var clrBtn=document.getElementById(clearId+"-"+id);
+    if(clrBtn)clrBtn.style.display="block";
   };
   r.readAsDataURL(input.files[0]);
+}
+function clearPhoto(id,type){
+  var o=findings.find(function(f){return f.id===id;});
+  if(o)o[type+"Src"]=null;
+  var prefix=type==="thermal"?"tb":"vb";
+  var clearId=type==="thermal"?"tc":"vc";
+  var box=document.getElementById(prefix+"-"+id);
+  var img=box.querySelector("img");if(img)img.remove();
+  box.classList.remove("loaded");
+  var clrBtn=document.getElementById(clearId+"-"+id);
+  if(clrBtn)clrBtn.style.display="none";
+  var fileInput=box.querySelector('input[type=file]');
+  if(fileInput)fileInput.value="";
 }
 function removeFinding(id){
   var i=findings.findIndex(function(f){return f.id===id;});
   if(i>-1)findings.splice(i,1);
   var el=document.getElementById("finding-"+id);if(el)el.remove();
+  renumberFindings();
   updateBar();
 }
 function updateBar(){
@@ -314,9 +351,22 @@ function resetAll(){
   document.getElementById("ck-prog").textContent="0 of "+CHECKS.length+" complete";
   updateBar();addFinding();
 }
+function openLightbox(src){
+  document.getElementById("lightbox-img").src=src;
+  document.getElementById("lightbox").classList.add("open");
+  document.body.style.overflow="hidden";
+}
+function closeLightbox(){
+  document.getElementById("lightbox").classList.remove("open");
+  document.body.style.overflow="";
+}
 buildCL();
 document.getElementById("insp-date").value=new Date().toISOString().split("T")[0];
 addFinding();
 </script>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">&times;</button>
+  <img id="lightbox-img" src="" alt="Zoomed photo">
+</div>
 </body>
 </html>
