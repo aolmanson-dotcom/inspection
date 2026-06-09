@@ -10,19 +10,19 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f2f2f7;color:#1c1c1e;font-size:15px;}
-.screen{display:none;min-height:100vh;padding-bottom:72px;}
+.screen{display:none;min-height:100vh;padding-bottom:100px;}
 .screen.active{display:block;}
 .nav{background:#fff;border-bottom:0.5px solid #c6c6c8;padding:10px 12px 7px;position:sticky;top:0;z-index:100;}
 .nav-title{font-size:16px;font-weight:600;text-align:center;color:#1c1c1e;}
 .nav-sub{font-size:11px;color:#8e8e93;text-align:center;margin-top:1px;}
 .nav-row{display:flex;align-items:center;justify-content:space-between;}
 .nav-btn{background:none;border:none;color:#004b8d;font-size:14px;font-weight:500;cursor:pointer;padding:0;}
-.tabbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:0.5px solid #c6c6c8;display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0px);}
+.tabbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:0.5px solid #c6c6c8;display:flex;z-index:9999;padding-bottom:env(safe-area-inset-bottom,0px);}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 5px;gap:2px;cursor:pointer;border:none;background:none;}
 .tab-icon{font-size:18px;line-height:1;}
 .tab-label{font-size:9px;color:#8e8e93;}
 .tab.active .tab-label{color:#004b8d;}
-.content{padding:10px 12px;}
+.content{padding:10px 12px;position:relative;z-index:1;}
 .card{background:#fff;border-radius:10px;overflow:hidden;margin-bottom:10px;}
 .card-header{padding:8px 14px;border-bottom:0.5px solid #f2f2f7;font-size:11px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:0.05em;}
 .row{display:flex;align-items:center;border-bottom:0.5px solid #f2f2f7;padding:0 14px;}
